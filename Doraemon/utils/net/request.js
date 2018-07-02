@@ -36,25 +36,8 @@ class Request {
     if (params.header) {
       header = params.header
     }
-
-
-    if (!params.data.wrap) {
-      if (params.data.parameter) {
-        params.url = params.url.indexOf('?') >= 0 ? params.url + '&' : params.url + '?';
-
-        if (data.token) {
-          params.url = `${params.url}productId=${data.productId}&productVersion=${data.productVersion}&time=${data.time}&uuid=${data.uuid}&sign=${data.sign}&token=${data.token}`
-        } else {
-          params.url = `${params.url}productId=${data.productId}&productVersion=${data.productVersion}&time=${data.time}&uuid=${data.uuid}&sign=${data.sign}`
-        }
-        delete params.data.parameter
-      } else {
-        params.data = Object.assign(data, params.data);
-      }
-    } else {
-      delete params.data.wrap
-    }
-
+    header = Object.assign(data, header);
+    
     return new Promise((resolve, reject) => {
       wx.request({
         url: params.url,

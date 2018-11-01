@@ -56,7 +56,7 @@ Page({
     });
   },
   getClassInfo: function (e) {
-    request.post({ url: '/api/admin/weixin/class/children', data: { parentId: 1000 } }).then((res2) => {
+    request.get({ url: '/api/admin/weixin/class/children', data: { id: 1000 } }).then((res2) => {
       if (res2.data.code == 0) {
         console.log(res2.data.data.dataList)
       } else {
@@ -67,7 +67,7 @@ Page({
   },
 
   getResourceInfo: function (e) {
-    request.post({ url: '/api/admin/weixin/resource/get', data: { id: 1232 } }).then((res2) => {
+    request.get({ url: '/api/admin/weixin/resource/get', data: { id: 1232 } }).then((res2) => {
       if (res2.data.code == 0) {
         console.log(res2.data.data.dataList)
       } else {
@@ -78,7 +78,7 @@ Page({
   },
 
   getPageReadInfo: function (e) {
-    request.post({ url: '/api/admin/weixin/readpoint/get', data: { pageId: 10001 } }).then((res2) => {
+    request.get({ url: '/api/admin/weixin/readpoint/get', data: { pageId: 10001 } }).then((res2) => {
       if (res2.data.code == 0) {
         console.log(res2.data.data.dataList)
       } else {
@@ -89,7 +89,7 @@ Page({
   },
 
   getPageInfo: function (e) {
-    request.post({ url: '/api/admin/weixin/page/get', data: { classId: 1232, page: 1, limit: 100 } }).then((res2) => {
+    request.get({ url: '/api/admin/weixin/page/get', data: { classId: 1232, page: 1, limit: 100 } }).then((res2) => {
       if (res2.data.code == 0) {
         console.log(res2.data.data.dataList)
       } else {
@@ -100,7 +100,7 @@ Page({
   },
 
   getCatalogInfo: function (e) {
-    request.post({ url: '/api/admin/weixin/catalog/get', data: { classId: 1232 } }).then((res2) => {
+    request.get({ url: '/api/admin/weixin/catalog/get', data: { classId: 1232 } }).then((res2) => {
       if (res2.data.code == 0) {
         console.log(res2.data.data.dataList)
       } else {

@@ -1,0 +1,25 @@
+<view class="containerSingleImg {{singleClass}}" style="background-image:url({{coverSingle}});z-index:{{singleInx}};" >
+    <view class="stateList" wx:for-items="{{statements}}" wx:for-index="idx" data-item='{{item}}' data-w='{{item.w}}' data-h="{{item.h}}" bindtap="handleReadState" wx:key="idex" style='width:{{item.w}}px;height:{{item.h}}px;top:{{item.t}}px;right:{{item.l}}px'>
+    </view>
+</view>
+<view  class="containerDoubleImg {{doubleClass}}" style="background-image:url({{coverDouble}});z-index:{{douInx}};" >
+    <view class="stateList" wx:for-items="{{statements}}" wx:for-index="idx" data-item='{{item}}' data-w='{{item.w}}' data-h="{{item.h}}" bindtap="handleReadState" wx:key="idex" style='width:{{item.w}}px;height:{{item.h}}px;top:{{item.t}}px;left:{{item.l}}px'>
+    </view>
+</view>
+
+
+
+<view class='canvasBorder' animation="{{animationData}}" style="width:{{toastW}}px;height:{{toastH}}px;">
+     <view class='info' animation="{{animationToast}}" style='width:{{toastW}}px;height:{{toastH}}px;'>
+        <view class='nav'>
+        </view>
+        <span>{{ToastText}}</span>
+        
+    </view>
+</view>
+<view class="nextBtn" bindtap="nextPageFuc">
+    <!-- <image src="../../resource/images/next.png" /> -->
+</view>
+<view class="playBtn" bindtap="continuPlay">
+    <!-- <image src="../../resource/images/play.png" /> -->
+</view>

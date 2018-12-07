@@ -1,0 +1,13 @@
+<view class="list-item flex align-center stats_item_to_detail" bindtap="clickHandle" data-course="{{course}}" wx:for="{{courseList}}"
+    wx:for-item="course" wx:key="index">
+    <view class="item-center flex align-center justify-space-between">
+        <view class="calendar-info flex justify-center flex-column">
+            <view class="calendar-name flex align-center">
+                <text class="calendar-name-text">{{course.cnName}} </text>
+            </view>
+            <!-- <view class="share-info flex align-center">
+                <text>{{course.des}}</text>
+            </view> -->
+        </view>
+    </view>
+  </view>

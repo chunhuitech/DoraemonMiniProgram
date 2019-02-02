@@ -9,7 +9,11 @@ Page({
     y: 0,
     width: 0,
     height: 0,
+    windowWidth:0,
+    windowHeight:0,
+    pageStatus:'next',//当前是点击的下一页还是上一页
     page: 2,
+    dataPageIndex:1,
     indexDiv: 0,
     ed: 0,
     animationData: {},
@@ -37,9 +41,15 @@ Page({
     continu: false,
     continuFuc: null,
     singleInx: 10,
-    douInx: 11
+    douInx: 11,
+    pageToIdMap:{}
   },
   onLoad: function () {
+    this.getWindowInfo().then(res=>{
+      this.init();
+    })
+  },
+  init(){
     let voice = app.globalData.audio;
     voice.onPlay(() => {
       console.log('开始播放')
@@ -57,7 +67,6 @@ Page({
         if (voice.currentTime > this.data.ed) {
           voice.pause();
           let item = this.data.statements[this.data.indexDiv + 1]
-          // this.data.continuFuc&&this.data.continuFuc(voice);
           if (!item) {
             this.nextPageFuc();
             this.setData({
@@ -73,106 +82,118 @@ Page({
         }
       }
     })
-
-    request.get({ url: '/api/admin/weixin/resource/get', data: { id: 1232 } }).then((res2) => {
+    this.getAllBookVioce()
+  },
+  //获取整本书的音频数据
+  getAllBookVioce(){
+    return request.get({ url: '/api/admin/weixin/resource/get', data: { id: 1232 } }).then((res2) => {
       if (res2.data.code == 0) {
-          res2.data.data.dataList.map(v => {
+        res2.data.data.dataList.map(v => {
           bookData[v.id] = v;
         });
-        // this.updateData(this.data.page + ',' + (this.data.page * 1 + 1))
-        this.updateData(this.data.page)
+        this.getPageData()
       } else {
-        console.log(res2.data.code)
-        console.log(res2.data.result)
       }
     })
-
   },
-  onShow: function () {
-    // var animation = wx.createAnimation({
-    //     duration: 500,
-    //       timingFunction: 'ease',
-    //   })
-    //   this.animation = animation;
-    // //   animation.scale(2,2).rotate(45).step()
-    //   animation.width(140).height(50).translate(100,50).step()
-    //   this.setData({
-    //     animationData:animation.export()
-    //   })
-
-    //   setTimeout(function() {
-    //     animation.width(100).height(40).translate(100,400).step()
-    //     this.setData({
-    //       animationData:animation.export()
-    //     })
-    //   }.bind(this), 2000)
-
-  },
-  updateData: function (page) {
-    // request.post('https://www.chunhuitech.cn/api/admin/api/record/fetchpageinfos', {
-    //   classId: '1232',
-    //   pages: page
-    // }).then(res => {
-    //   if (res.data.code === 0) {
-    //     res.data.data.dataList.map(v => {
-    //       if (readBase[v.page]) {
-    //         readBase[v.page].data.push(v);
-    //       } else {
-    //         readBase[v.page] = {};
-    //         readBase[v.page].url = bookData[v.urlId].relativePath;
-    //         readBase[v.page].imageUrl = v.imageUrl;
-    //         readBase[v.page].data = [];
-    //         readBase[v.page].data.push(v);
-    //       }
-    //     })
-    //     this.initData();
-    //   }
-    // })
-    request.get({ url: '/api/admin/weixin/page/get', data: { classId: 1232, page: page, limit: 100 } }).then((res2) => {
-      if (res2.data.code == 0) {
-          res2.data.data.dataList.map(v => {
-          if (readBase[v.page]) {
-            readBase[v.page].data.push(v);
-          } else {
-            readBase[v.page] = {};
-            readBase[v.page].url = bookData[v.page].relativePath;
-            readBase[v.page].imageUrl = v.imageUrl;
-            readBase[v.page].data = [];
-            readBase[v.page].data.push(v);
+  //获取书每页详情的list（分页返回）
+  getPageData:function(boole){
+    let dataPageIndex = this.data.dataPageIndex <= 0 ? 1 : this.data.dataPageIndex;
+    return request.get({ url: '/api/admin/weixin/page/get', data: { classId: 1232, page: dataPageIndex, limit: 100 } }).then((res2) => {
+      let pageToIdMap=this.data.pageToIdMap;
+      let {code,data}=res2.data;
+      if(code===0){
+        data.dataList.forEach(element => {
+          if(!pageToIdMap[element.page]){
+            pageToIdMap[element.page]=element.id;
           }
         })
-        this.initData();
-      } else {
-        console.log(res2.data.code)
-        console.log(res2.data.result)
+        !boole &&this.updateData()
       }
     })
   },
-  initData: function () {
-    let arr = [];
-    if (!readBase[this.data.page]) {
-      let animation = wx.createAnimation({
-        duration: 100,
-        timingFunction: 'ease',
-      });
-      animation.translate(0, -50).step();
-      this.setData({
-        animationData: animation.export()
+  onShow: function () {
+
+  },
+  //获取当前页面窗口宽高
+  getWindowInfo(){
+    let self=this;
+    return new Promise((resolve,reject)=>{
+      wx.getSystemInfo({
+        success: res => {
+          self.data.windowWidth = res.windowWidth;
+          self.data.windowHeight = res.windowHeight;
+          resolve()
+        }
       })
-      wx.showToast({
-        title: '播放完毕',
-        icon: 'success',
-        duration: 2000
+    })
+  },
+  //处理每页详情的信息
+  updateData: function () {
+    let page = this.data.page;
+    let pageId= this.data.pageToIdMap[page];
+    if (!pageId){
+
+      this.data.dataPageIndex = this.data.pageStatus == 'next' ? this.data.dataPageIndex + 1 : this.data.dataPageIndex - 1;
+      return this.getPageData(true).then(res=>{
+        pageId = this.data.pageToIdMap[page]
+        if (!pageId){
+          this.palyOver();
+        }else{
+          return this.getPageInfoByPage(pageId)
+        }
       })
-      return;
+    }else{
+      return this.getPageInfoByPage(pageId)
     }
+  },
+  //根据pageid获取每页信息
+  getPageInfoByPage(pageId){
+    let page=this.data.page;
+    return request.get({ url: '/api/admin/weixin/readpoint/get', data: { pageId: pageId } }).then((res2) => {
+      let { code, data } = res2.data;
+      if (code === 0) {
+        data.dataList.forEach(v => {
+          if (readBase[page]) {
+            readBase[page].data.push(v);
+          } else {
+            readBase[page] = {};
+            readBase[page].url = bookData[v.resourceId].relativePath;
+            readBase[page].imageUrl = v.imageUrl;
+            readBase[page].data = [];
+            readBase[page].data.push(v);
+          }
+        })
+        this.pointPage();
+      }
+    })
+  },
+  //更新视图
+  pointPage(){
+    let arr = [];
     readBase[this.data.page].data.map(v => {
       arr.push(this.calculationPx(v))
     })
     this.setData({
       statements: arr,
-      cover: readBase[this.data.page].imageUrl
     });
+  },
+  //播放完毕
+  palyOver(){
+    let animation = wx.createAnimation({
+      duration: 100,
+      timingFunction: 'ease',
+    });
+    animation.translate(0, -50).step();
+    this.setData({
+      animationData: animation.export()
+    })
+    wx.showToast({
+      title: '播放完毕',
+      icon: 'success',
+      duration: 2000
+    })
+    return;
   },
   handleReadState: function (e) {
     let dom = e.currentTarget;
@@ -214,12 +235,12 @@ Page({
   },
   calculationPx(obj) {
     return {
-      l: (obj.l * app.globalData.client.w / this.data.stateImgBase.w).toFixed(2),
-      t: (obj.t * app.globalData.client.h / this.data.stateImgBase.h).toFixed(2),
-      w: (obj.w * app.globalData.client.w / this.data.stateImgBase.w).toFixed(2),
-      h: (obj.h * app.globalData.client.h / this.data.stateImgBase.h).toFixed(2),
-      bg: obj.bg,
-      ed: obj.ed,
+      l: (obj.leftPosition * this.data.windowWidth / this.data.stateImgBase.w).toFixed(2),
+      t: (obj.topPosition * this.data.windowHeight / this.data.stateImgBase.h).toFixed(2),
+      w: (obj.width * this.data.windowWidth / this.data.stateImgBase.w).toFixed(2),
+      h: (obj.height * this.data.windowHeight / this.data.stateImgBase.h).toFixed(2),
+      bg: obj.beginPoint,
+      ed: obj.endPoint,
       text: obj.text
     }
   },
@@ -259,15 +280,15 @@ Page({
       douInx = 10;
       singleClass = 'pageAnimateCss';
     }
+    this.data.page=this.data.page+1;
+    this.updateData()
     this.setData({
-      page: this.data.page + 1,
+      page: this.data.page,
       doubleClass: doubleClass,
       singleClass: singleClass,
       singleInx: singleInx,
       douInx: douInx
     });
-    this.updateData(this.data.page + 1);
-    this.initData();
     let animation = wx.createAnimation({
       duration: 100,
       timingFunction: 'ease',
@@ -280,7 +301,7 @@ Page({
   continuPlay: function () {
     let index = 0;
     let that = this;
-    this.initData();
+    this.pointPage();
     this.commonReadState(this.data.statements[index])
     this.setData({
       continu: true,

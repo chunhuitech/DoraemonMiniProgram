@@ -4,7 +4,7 @@
   <open-data type="userAvatarUrl"></open-data>
   <open-data type="userNickName"></open-data>
   <!-- 需要使用 button 来授权登录 -->
-  <button wx:if="{{canIUse}}" open-type="getUserInfo" bindgetuserinfo="onGotUserInfo">授权登录--新版</button>
+  <button wx:if="{{unLogin}}" open-type="getUserInfo" bindgetuserinfo="onGotUserInfo">授权登录--新版</button>
   <view wx:else>请升级微信版本</view>
   <button bindtap="getUserInfoByHandle">手动获取用户信息，同授权登录--老版，以后不支持</button>
   <button bindtap="startUpHandle">程序启动 埋点</button>

@@ -4,23 +4,12 @@ import request from '../../../utils/net/request';
 
 Page({
   data: {
-    canIUse: wx.canIUse('button.open-type.getUserInfo')
+    canIUse: wx.canIUse('button.open-type.getUserInfo'),
+    unLogin:!wx.getStorageSync('login')
   },
   onLoad: function () {
     // 查看是否授权
-    wx.getSetting({
-      success: function (res) {
-        if (res.authSetting['scope.userInfo']) {
-          // 已经授权，可以直接调用 getUserInfo 获取头像昵称
-          wx.getUserInfo({
-            success: function (res) {
-              // console.log(res.userInfo)
-              // console.log("uuid:" + util.genUUid())
-            }
-          })
-        }
-      }
-    })
+    
   },
   onGotUserInfo: function (e) {
     // console.log(e.detail.errMsg)
@@ -44,7 +33,7 @@ Page({
               wx.setStorageSync('token', res2.data.data.token);
               wx.setStorageSync('userId', res2.data.data.userId);
               wx.setStorageSync('authorStatus', true);
-
+              wx.setStorageSync('login', true);
             } else {
               wx.showToast({
                 title: res2.data.result,
@@ -138,7 +127,7 @@ Page({
                   wx.setStorageSync('token', res2.data.data.token);
                   wx.setStorageSync('userId', res2.data.data.userId);
                   wx.setStorageSync('authorStatus', true);
-
+                  wx.setStorageSync('login', true);
                 } else {
                   wx.showToast({
                     title: res2.data.result,

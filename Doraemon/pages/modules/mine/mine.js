@@ -8,7 +8,8 @@ Page({
    * 页面的初始数据
    */
   data: {
-    canIUse: wx.canIUse('button.open-type.getUserInfo')
+    canIUse: wx.canIUse('button.open-type.getUserInfo'),
+    showLogin:!wx.getStorageSync('login')
   },
 
   /**
@@ -22,7 +23,7 @@ Page({
     // console.log(e.detail.userInfo)
     //console.log(e.detail.rawData)
     console.log(e.detail)
-
+    let self=this;
     wx.login({
       success: function (res) {
         if (res.code) {
@@ -31,15 +32,16 @@ Page({
           var iv = e.detail.iv;
 
           wx.showLoading({ 'title': '提交中...', mask: true });
-
-
           request.post({ url: '/api/admin/weixin/user/login', data: { code: res.code, encryptedData: encryptedData, iv: iv } }).then((res2) => {
             wx.hideLoading();
             if (res2.data.code == 0) {
               wx.setStorageSync('token', res2.data.data.token);
               wx.setStorageSync('userId', res2.data.data.userId);
               wx.setStorageSync('authorStatus', true);
-
+              wx.setStorageSync('login', true);
+              self.setData({
+                showLogin:false
+              })
             } else {
               wx.showToast({
                 title: res2.data.result,

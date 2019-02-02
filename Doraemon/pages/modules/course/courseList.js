@@ -7,14 +7,19 @@ Page({
    */
   data: {
     courseList: [],
-    classId:1200
+    classId:1200,
+    isHaveData:false
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    this.initData();
+    if(wx.getStorageSync('login')){
+      this.initData();
+    }else{
+      this.data.isHaveData=false
+    }
   },
 
   /**
@@ -28,6 +33,12 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
+    if(wx.getStorageSync('login')){
+      if(!this.data.isHaveData){
+        this.initData();
+      }
+    }
+    
   },
 
   /**
@@ -79,7 +90,8 @@ Page({
     return request.get(jsonStr).then((res) => {
       const { code, data } = res.data;
       if (code === 0) {
-        self.setData({ courseList: data.dataList, isWarningShow: false });
+        this.data.isHaveData=true;
+        self.setData({ courseList: data.dataList});
       } else {
       }
     });

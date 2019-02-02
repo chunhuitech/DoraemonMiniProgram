@@ -4,6 +4,6 @@
   <open-data type="userAvatarUrl"></open-data>
   <open-data type="userNickName"></open-data>
   <!-- 需要使用 button 来授权登录 -->
-  <button wx:if="{{canIUse}}" open-type="getUserInfo" bindgetuserinfo="onGotUserInfo">授权登录--新版</button>
+  <button wx:if="{{showLogin}}" open-type="getUserInfo" bindgetuserinfo="onGotUserInfo">授权登录--新版</button>
   
 </view>
